@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Clean Sweep · My Apartment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Albert+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --canvas: #eaf0ea;
+    --paper: #ffffff;
+    --paper-2: #f4f8f4;
+    --ink: #16271e;
+    --ink-soft: #4a5d52;
+    --ink-faint: #87988d;
+    --line: #d9e3da;
+    --green: #2f8f6b;
+    --green-deep: #1f6e51;
+    --green-soft: #d6ebe0;
+    --honey: #e09a35;
+    --honey-soft: #fbecd2;
+    --done: #9fb3a6;
+
+    --r-main: #2f8f6b;
+    --r-bed: #6a6fd6;
+    --r-bath: #2aa3b8;
+    --r-kit: #d98a2b;
+    --r-closet: #a25bc4;
+    --r-hall: #5b7488;
+    --r-balc: #5aa84a;
+
+    --radius: 18px;
+    --shadow: 0 1px 2px rgba(22,39,30,.05), 0 8px 24px rgba(22,39,30,.06);
+    --shadow-lift: 0 2px 4px rgba(22,39,30,.06), 0 16px 40px rgba(22,39,30,.12);
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: "Albert Sans", system-ui, sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(1200px 500px at 50% -200px, #f2f7f1 0%, rgba(242,247,241,0) 60%),
+      var(--canvas);
+    min-height: 100vh;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 920px; margin: 0 auto; padding: 28px 18px 96px; }
+
+  /* ---------- Header ---------- */
+  header.app { text-align: left; margin-bottom: 22px; }
+  .eyebrow {
+    font-size: 12px; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--green-deep); font-weight: 600; margin: 0 0 6px;
+  }
+  h1.title {
+    font-family: "Fraunces", serif;
+    font-weight: 600;
+    font-size: clamp(34px, 7vw, 54px);
+    line-height: 1.02;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  h1.title em { font-style: italic; color: var(--green); }
+  .subtitle { color: var(--ink-soft); margin: 8px 0 0; font-size: 15px; max-width: 46ch; }
+
+  /* ---------- Hero / progress ---------- */
+  .hero {
+    margin-top: 22px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    flex-wrap: wrap;
+  }
+  .ring-box { position: relative; width: 116px; height: 116px; flex: 0 0 auto; }
+  .ring-box svg { transform: rotate(-90deg); display: block; }
+  .ring-bg { fill: none; stroke: var(--green-soft); stroke-width: 12; }
+  .ring-fg {
+    fill: none; stroke: var(--green); stroke-width: 12; stroke-linecap: round;
+    transition: stroke-dashoffset .6s cubic-bezier(.2,.7,.2,1), stroke .4s ease;
+  }
+  .ring-num {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .ring-num b { font-family: "Fraunces", serif; font-weight: 600; font-size: 30px; line-height: 1; }
+  .ring-num span { font-size: 11px; color: var(--ink-faint); letter-spacing: .04em; }
+
+  .hero-meta { flex: 1 1 240px; min-width: 220px; }
+  .hero-line { font-size: 17px; font-weight: 600; margin: 0 0 4px; }
+  .hero-sub { color: var(--ink-soft); font-size: 14px; margin: 0; }
+  .hero-stats { display: flex; gap: 16px; margin-top: 14px; flex-wrap: wrap; }
+  .stat { display: flex; flex-direction: column; }
+  .stat b { font-size: 20px; font-family: "Fraunces", serif; font-weight: 600; }
+  .stat span { font-size: 12px; color: var(--ink-faint); }
+
+  .hero-actions { display: flex; gap: 10px; width: 100%; flex-wrap: wrap; margin-top: 2px; }
+  .btn {
+    appearance: none; border: 1px solid var(--line); background: var(--paper-2);
+    color: var(--ink); font-family: inherit; font-size: 14px; font-weight: 600;
+    padding: 11px 16px; border-radius: 12px; cursor: pointer;
+    transition: transform .12s ease, background .15s ease, border-color .15s ease, box-shadow .15s;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn:hover { background: #fff; border-color: #c7d4c9; }
+  .btn:active { transform: translateY(1px) scale(.99); }
+  .btn.primary { background: var(--green); color: #fff; border-color: var(--green); }
+  .btn.primary:hover { background: var(--green-deep); border-color: var(--green-deep); }
+  .btn.ghost { background: transparent; }
+
+  /* ---------- Frequency tabs ---------- */
+  .freqs {
+    display: flex; gap: 8px; margin: 24px 0 6px; overflow-x: auto;
+    padding-bottom: 6px; -webkit-overflow-scrolling: touch; scrollbar-width: thin;
+  }
+  .freq {
+    appearance: none; border: 1px solid var(--line); background: var(--paper);
+    color: var(--ink-soft); font-family: inherit; font-weight: 600; font-size: 14.5px;
+    padding: 10px 16px; border-radius: 999px; cursor: pointer; white-space: nowrap;
+    transition: all .15s ease; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .freq:hover { border-color: #bfd0c3; }
+  .freq[aria-selected="true"] {
+    background: var(--ink); color: #fff; border-color: var(--ink);
+  }
+  .freq .pill {
+    font-size: 11px; background: var(--green-soft); color: var(--green-deep);
+    padding: 1px 7px; border-radius: 999px; font-weight: 700;
+  }
+  .freq[aria-selected="true"] .pill { background: rgba(255,255,255,.18); color: #fff; }
+
+  .freq-desc { color: var(--ink-faint); font-size: 13.5px; margin: 4px 2px 18px; }
+
+  /* ---------- Room filter chips ---------- */
+  .rooms { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
+  .room-chip {
+    appearance: none; border: 1px solid var(--line); background: var(--paper);
+    font-family: inherit; font-weight: 600; font-size: 13px; color: var(--ink-soft);
+    padding: 7px 12px 7px 10px; border-radius: 999px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 7px; transition: all .14s ease;
+  }
+  .room-chip .dot { width: 9px; height: 9px; border-radius: 50%; flex: 0 0 auto; }
+  .room-chip[aria-selected="true"] { border-color: var(--ink); color: var(--ink); background: var(--paper-2); }
+  .room-chip:hover { border-color: #bfd0c3; }
+
+  /* ---------- Room sections ---------- */
+  .room-group { margin-bottom: 22px; }
+  .room-head {
+    display: flex; align-items: center; gap: 10px; margin: 0 2px 12px;
+  }
+  .room-head .bar { width: 5px; height: 22px; border-radius: 3px; }
+  .room-head h2 {
+    font-family: "Fraunces", serif; font-weight: 600; font-size: 21px; margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .room-head .count {
+    margin-left: auto; font-size: 13px; color: var(--ink-faint); font-weight: 600;
+    background: var(--paper); border: 1px solid var(--line); padding: 3px 10px; border-radius: 999px;
+  }
+  .room-head .count.complete { background: var(--green-soft); color: var(--green-deep); border-color: transparent; }
+
+  /* ---------- Task rows ---------- */
+  .tasks { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .task {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--paper); border: 1px solid var(--line); border-radius: 14px;
+    padding: 14px 16px; cursor: pointer; box-shadow: var(--shadow);
+    transition: transform .12s ease, box-shadow .15s ease, opacity .25s ease, background .2s;
+    position: relative; overflow: hidden;
+  }
+  .task:hover { box-shadow: var(--shadow-lift); }
+  .task:active { transform: scale(.994); }
+  .task:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
+  .task .accent { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
+
+  .checkbox {
+    width: 28px; height: 28px; border-radius: 9px; border: 2.5px solid #c4d2c8;
+    flex: 0 0 auto; display: grid; place-items: center; transition: all .18s ease;
+    background: #fff;
+  }
+  .checkbox svg { width: 18px; height: 18px; opacity: 0; transform: scale(.4); transition: all .2s cubic-bezier(.2,.9,.3,1.4); }
+  .task .label { flex: 1 1 auto; font-size: 16px; font-weight: 500; transition: color .2s; }
+  .task .time {
+    font-size: 12.5px; font-weight: 700; color: var(--ink-soft);
+    background: var(--paper-2); border: 1px solid var(--line);
+    padding: 4px 9px; border-radius: 999px; white-space: nowrap; flex: 0 0 auto;
+  }
+  .task .del {
+    appearance: none; border: none; background: transparent; cursor: pointer;
+    color: var(--ink-faint); font-size: 20px; line-height: 1; padding: 2px 6px;
+    border-radius: 8px; flex: 0 0 auto; transition: all .14s ease;
+  }
+  .task .del:hover { background: #fbe3e3; color: #c0392b; }
+
+  .task.done { background: var(--paper-2); }
+  .task.done .checkbox { background: var(--green); border-color: var(--green); }
+  .task.done .checkbox svg { opacity: 1; transform: scale(1); }
+  .task.done .label { color: var(--done); text-decoration: line-through; text-decoration-thickness: 2px; }
+  .task.done .time { opacity: .5; }
+
+  .task.flash { animation: flash 1.4s ease; }
+  @keyframes flash {
+    0% { box-shadow: 0 0 0 0 rgba(47,143,107,.5); }
+    20% { box-shadow: 0 0 0 6px rgba(47,143,107,.18); transform: scale(1.012); }
+    100% { box-shadow: var(--shadow); }
+  }
+
+  /* ---------- Add a task ---------- */
+  .add-wrap { margin-top: 8px; }
+  .add-btn {
+    width: 100%; text-align: left; border: 1.5px dashed var(--line); background: transparent;
+    color: var(--ink-soft); font-family: inherit; font-weight: 600; font-size: 14px;
+    padding: 12px 16px; border-radius: 12px; cursor: pointer; transition: all .14s ease;
+  }
+  .add-btn:hover { border-color: var(--green); color: var(--green-deep); background: var(--paper-2); }
+  .add-form {
+    display: flex; gap: 8px; align-items: center; background: var(--paper);
+    border: 1px solid var(--line); border-radius: 12px; padding: 8px; flex-wrap: wrap;
+    box-shadow: var(--shadow);
+  }
+  .add-form .add-name {
+    flex: 1 1 180px; min-width: 0; border: 1px solid var(--line); border-radius: 9px;
+    padding: 11px 12px; font-family: inherit; font-size: 15px; color: var(--ink); background: #fff;
+  }
+  .add-form .add-mins {
+    width: 64px; border: 1px solid var(--line); border-radius: 9px; padding: 11px 6px;
+    font-family: inherit; font-size: 15px; text-align: center; background: #fff; color: var(--ink);
+  }
+  .add-form input:focus { outline: 2px solid var(--green); outline-offset: 1px; border-color: var(--green); }
+  .add-form .mins-label { font-size: 13px; color: var(--ink-faint); margin-left: -2px; }
+  .add-form .btn { padding: 10px 14px; }
+
+  /* ---------- All-done celebration ---------- */
+  .celebrate {
+    text-align: center; padding: 34px 20px; background: var(--green-soft);
+    border-radius: var(--radius); border: 1px solid #bfe0cd; margin-bottom: 22px;
+  }
+  .celebrate.hidden { display: none; }
+  .celebrate .big { font-family: "Fraunces", serif; font-size: 26px; font-weight: 600; margin: 0 0 4px; color: var(--green-deep); }
+  .celebrate p { margin: 0; color: var(--ink-soft); }
+
+  /* ---------- Footer note ---------- */
+  .note { text-align: center; color: var(--ink-faint); font-size: 12.5px; margin-top: 28px; line-height: 1.6; }
+  .note a { color: var(--green-deep); }
+
+  /* confetti */
+  .confetti { position: fixed; top: -12px; width: 9px; height: 14px; z-index: 50; pointer-events: none; border-radius: 2px; }
+
+  @media (max-width: 560px) {
+    .hero { gap: 16px; padding: 16px; }
+    .ring-box { width: 92px; height: 92px; }
+    .task .time { display: none; }
+    .task.has-time .time { display: inline-block; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .08s !important; }
+    .confetti { display: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="app">
+    <p class="eyebrow">My one-bedroom · clean sweep</p>
+    <h1 class="title">What needs<br><em>a little love?</em></h1>
+    <p class="subtitle">Pick a rhythm below. Do as much or as little as you've got energy for — every check counts, and it all saves automatically.</p>
+  </header>
+
+  <section class="hero" aria-label="Progress for the current list">
+    <div class="ring-box">
+      <svg width="116" height="116" viewBox="0 0 116 116" aria-hidden="true">
+        <circle class="ring-bg" cx="58" cy="58" r="50"></circle>
+        <circle class="ring-fg" id="ring" cx="58" cy="58" r="50" stroke-dasharray="314.159" stroke-dashoffset="314.159"></circle>
+      </svg>
+      <div class="ring-num"><b id="ringPct">0%</b><span>done</span></div>
+    </div>
+
+    <div class="hero-meta">
+      <p class="hero-line" id="heroLine">Daily reset</p>
+      <p class="hero-sub" id="heroSub">Small, repeatable wins to keep the place breathing.</p>
+      <div class="hero-stats">
+        <div class="stat"><b id="statLeft">0</b><span>tasks left</span></div>
+        <div class="stat"><b id="statTime">0m</b><span>time left</span></div>
+        <div class="stat"><b id="statDone">0</b><span>done today</span></div>
+      </div>
+    </div>
+
+    <div class="hero-actions">
+      <button class="btn primary" id="pickOne">✨ Pick one for me</button>
+      <button class="btn ghost" id="resetList">↺ Start this list fresh</button>
+    </div>
+  </section>
+
+  <nav class="freqs" id="freqs" role="tablist" aria-label="Cleaning rhythm"></nav>
+  <p class="freq-desc" id="freqDesc"></p>
+
+  <div class="rooms" id="rooms" aria-label="Filter by room"></div>
+
+  <div class="celebrate hidden" id="celebrate">
+    <p class="big">All clear. 🌿</p>
+    <p>Every task in this view is done. Go enjoy the space you just made.</p>
+  </div>
+
+  <main id="board"></main>
+
+  <p class="note">
+    Progress and any tasks you add are saved in this browser only — no account, nothing leaves your device.<br>
+    Daily tasks reset on their own each morning. Other lists reset whenever you tap “Start this list fresh.”
+  </p>
+
+</div>
+
+<script>
+/* ---------------- DATA ---------------- */
+const ROOMS = {
+  main:   { name: "Main Room",       color: "var(--r-main)"   },
+  bed:    { name: "Bedroom",         color: "var(--r-bed)"    },
+  bath:   { name: "Bathroom",        color: "var(--r-bath)"   },
+  kit:    { name: "Kitchen",         color: "var(--r-kit)"    },
+  closet: { name: "Closet",          color: "var(--r-closet)" },
+  hall:   { name: "Hallway Storage", color: "var(--r-hall)"   },
+  balc:   { name: "Balcony",         color: "var(--r-balc)"   },
+};
+
+const FREQS = [
+  { id: "daily",     label: "Daily",     desc: "Small, repeatable wins to keep the place breathing." },
+  { id: "weekly",    label: "Weekly",    desc: "The core reset — most of your real cleaning lives here." },
+  { id: "monthly",   label: "Monthly",   desc: "The deeper bits that quietly build up over a few weeks." },
+  { id: "quarterly", label: "Quarterly", desc: "Every few months. The stuff that's easy to forget exists." },
+  { id: "seasonal",  label: "Seasonal",  desc: "Tied to the changing seasons — swaps and refreshes." },
+  { id: "yearly",    label: "Yearly",    desc: "Big once-a-year jobs. Knock these out one at a time." },
+];
+
+// [room, freq, task, minutes]
+const TASKS = [
+  ["kit","daily","Wash or load the dishes",10],
+  ["kit","daily","Wipe down the counters",3],
+  ["kit","daily","Clear out the sink",2],
+  ["main","daily","10-minute clutter sweep",10],
+  ["main","daily","Reset cushions & blankets",2],
+  ["bed","daily","Make the bed",2],
+  ["bath","daily","Quick sink & faucet wipe",2],
+  ["bath","daily","Hang up the towels",1],
+
+  ["kit","weekly","Wipe the stovetop",5],
+  ["kit","weekly","Wipe appliance fronts",5],
+  ["kit","weekly","Sweep & mop the floor",12],
+  ["kit","weekly","Toss old fridge leftovers",5],
+  ["kit","weekly","Take out trash & recycling",5],
+  ["main","weekly","Vacuum / sweep the floor",12],
+  ["main","weekly","Dust the surfaces",8],
+  ["main","weekly","Wipe coffee & side tables",4],
+  ["bed","weekly","Change the bed sheets",8],
+  ["bed","weekly","Vacuum the floor",8],
+  ["bed","weekly","Dust nightstand & dresser",5],
+  ["bath","weekly","Scrub the toilet",6],
+  ["bath","weekly","Clean the shower / tub",10],
+  ["bath","weekly","Wipe the mirror",3],
+  ["bath","weekly","Scrub the sink",4],
+  ["bath","weekly","Mop the floor",6],
+  ["closet","weekly","Put away stray clothes",6],
+  ["hall","weekly","Tidy & re-stack the shelves",8],
+  ["balc","weekly","Sweep the balcony floor",6],
+
+  ["kit","monthly","Clean inside the microwave",6],
+  ["kit","monthly","Wipe the cabinet doors",8],
+  ["kit","monthly","Wipe down fridge interior",12],
+  ["kit","monthly","Descale kettle / coffee maker",10],
+  ["kit","monthly","Wash out the trash can",8],
+  ["main","monthly","Dust the baseboards",10],
+  ["main","monthly","Clean under the furniture",12],
+  ["main","monthly","Wipe switches & door handles",6],
+  ["main","monthly","Clean the window glass",12],
+  ["bed","monthly","Vacuum under the bed",8],
+  ["bed","monthly","Wash the mattress protector",5],
+  ["bed","monthly","Rotate the mattress",5],
+  ["bath","monthly","Wash the bath mats",5],
+  ["bath","monthly","Scrub grout & tiles",15],
+  ["bath","monthly","Clean the exhaust fan cover",8],
+  ["closet","monthly","Declutter one shelf or section",15],
+  ["closet","monthly","Sort a donate pile",10],
+  ["hall","monthly","Reorganize one storage zone",15],
+  ["balc","monthly","Wipe railings & furniture",12],
+
+  ["main","quarterly","Wash windows inside & out",25],
+  ["kit","quarterly","Vacuum behind / under the fridge",15],
+  ["main","quarterly","Deep clean rugs / spot carpet",25],
+  ["main","quarterly","Wash curtains or blinds",20],
+  ["main","quarterly","Wipe walls & spot-clean marks",20],
+  ["main","quarterly","Clean light fixtures & shades",15],
+
+  ["closet","seasonal","Swap in seasonal clothes",30],
+  ["bed","seasonal","Wash the comforter / duvet",15],
+  ["balc","seasonal","Deep clean the balcony",30],
+  ["bed","seasonal","Flip mattress & wash all bedding",20],
+  ["hall","seasonal","Re-stock cleaning supplies",15],
+
+  ["kit","yearly","Deep clean the oven",30],
+  ["kit","yearly","Defrost & clean the freezer",30],
+  ["kit","yearly","Empty & wipe inside cabinets",40],
+  ["main","yearly","Wash / dry-clean curtains",25],
+  ["main","yearly","Replace or clean HVAC filter",10],
+  ["kit","yearly","Deep clean washer & dryer vent",25],
+  ["closet","yearly","Full closet declutter",45],
+  ["main","yearly","Wipe down all the walls",40],
+];
+
+/* ---------------- HELPERS / STATE ---------------- */
+const STORE_KEY = "cleanSweep.v1";
+const ROOM_ORDER = ["main","bed","bath","kit","closet","hall","balc"];
+function slug(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,""); }
+
+const BUILTINS = TASKS.map(t => ({ id: t[1]+":"+t[0]+":"+slug(t[2]), room:t[0], freq:t[1], name:t[2], mins:t[3], custom:false }));
+
+let state = load();
+let activeFreq = "daily";
+let activeRoom = "all";
+let addingRoom = null;
+
+function load(){
+  try {
+    const raw = JSON.parse(localStorage.getItem(STORE_KEY) || "{}");
+    return { done: raw.done || {}, lastDaily: raw.lastDaily || null, custom: Array.isArray(raw.custom) ? raw.custom : [] };
+  } catch(e){ return { done:{}, lastDaily:null, custom:[] }; }
+}
+function save(){ try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch(e){} }
+function allTasks(){
+  return BUILTINS.concat(state.custom.map(c => ({ id:c.id, room:c.room, freq:c.freq, name:c.name, mins:c.mins, custom:true })));
+}
+
+// auto-reset daily tasks on a new calendar day
+(function dailyRollover(){
+  const today = new Date().toDateString();
+  if (state.lastDaily !== today){
+    for (const t of allTasks()) if (t.freq === "daily") delete state.done[t.id];
+    state.lastDaily = today; save();
+  }
+})();
+
+/* ---------------- RENDER ---------------- */
+const elFreqs = document.getElementById("freqs");
+const elRooms = document.getElementById("rooms");
+const elBoard = document.getElementById("board");
+const elFreqDesc = document.getElementById("freqDesc");
+
+function buildFreqTabs(){
+  elFreqs.innerHTML = "";
+  for (const f of FREQS){
+    const list = allTasks().filter(t => t.freq === f.id);
+    const done = list.filter(t => state.done[t.id]).length;
+    const b = document.createElement("button");
+    b.className = "freq";
+    b.setAttribute("role","tab");
+    b.setAttribute("aria-selected", f.id === activeFreq);
+    b.innerHTML = `${f.label} <span class="pill">${done}/${list.length}</span>`;
+    b.onclick = () => { activeFreq = f.id; activeRoom = "all"; addingRoom = null; renderAll(); };
+    elFreqs.appendChild(b);
+  }
+}
+
+function roomsInFreq(){
+  const set = new Set(allTasks().filter(t => t.freq === activeFreq).map(t => t.room));
+  return ROOM_ORDER.filter(r => set.has(r));
+}
+
+function buildRoomChips(){
+  elRooms.innerHTML = "";
+  const all = document.createElement("button");
+  all.className = "room-chip";
+  all.setAttribute("aria-selected", activeRoom === "all");
+  all.innerHTML = `<span class="dot" style="background:var(--ink)"></span>All rooms`;
+  all.onclick = () => { activeRoom = "all"; addingRoom = null; renderAll(); };
+  elRooms.appendChild(all);
+
+  for (const r of ROOM_ORDER){
+    const c = document.createElement("button");
+    c.className = "room-chip";
+    c.setAttribute("aria-selected", activeRoom === r);
+    c.innerHTML = `<span class="dot" style="background:${ROOMS[r].color}"></span>${ROOMS[r].name}`;
+    c.onclick = () => { activeRoom = r; addingRoom = null; renderAll(); };
+    elRooms.appendChild(c);
+  }
+}
+
+function visibleTasks(){
+  return allTasks().filter(t => t.freq === activeFreq && (activeRoom === "all" || t.room === activeRoom));
+}
+
+function buildBoard(){
+  elBoard.innerHTML = "";
+  const rooms = activeRoom === "all" ? roomsInFreq() : [activeRoom];
+
+  for (const r of rooms){
+    const items = allTasks().filter(t => t.freq === activeFreq && t.room === r);
+    if (!items.length && activeRoom === "all") continue;
+
+    const doneCount = items.filter(t => state.done[t.id]).length;
+    const allDone = items.length > 0 && doneCount === items.length;
+
+    const group = document.createElement("section");
+    group.className = "room-group";
+
+    const head = document.createElement("div");
+    head.className = "room-head";
+    const countText = items.length ? (allDone ? "✓ all done" : doneCount + " / " + items.length) : "nothing here yet";
+    head.innerHTML =
+      `<span class="bar" style="background:${ROOMS[r].color}"></span>
+       <h2>${ROOMS[r].name}</h2>
+       <span class="count ${allDone ? "complete":""}">${countText}</span>`;
+    group.appendChild(head);
+
+    const ul = document.createElement("ul");
+    ul.className = "tasks";
+    for (const t of items){
+      const isDone = !!state.done[t.id];
+      const li = document.createElement("li");
+      li.className = "task has-time" + (isDone ? " done" : "");
+      li.tabIndex = 0;
+      li.setAttribute("role","button");
+      li.setAttribute("aria-pressed", isDone);
+      li.dataset.id = t.id;
+      const delBtn = t.custom ? `<button class="del" aria-label="Delete this task" title="Delete">×</button>` : "";
+      li.innerHTML =
+        `<span class="accent" style="background:${ROOMS[r].color}"></span>
+         <span class="checkbox">
+           <svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+         </span>
+         <span class="label">${escapeHtml(t.name)}</span>
+         <span class="time">${t.mins}m</span>
+         ${delBtn}`;
+      const toggle = () => toggleTask(t.id, li);
+      li.addEventListener("click", toggle);
+      li.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); toggle(); }});
+      if (t.custom){
+        li.querySelector(".del").addEventListener("click", e => { e.stopPropagation(); deleteCustom(t.id); });
+      }
+      ul.appendChild(li);
+    }
+    group.appendChild(ul);
+
+    // ---- add-a-task affordance ----
+    const addWrap = document.createElement("div");
+    addWrap.className = "add-wrap";
+    if (addingRoom === r){
+      addWrap.innerHTML =
+        `<div class="add-form">
+           <input type="text" class="add-name" placeholder="Add a task to ${ROOMS[r].name}…" maxlength="80" />
+           <input type="number" class="add-mins" value="5" min="0" max="600" aria-label="estimated minutes" />
+           <span class="mins-label">min</span>
+           <button class="btn primary add-save">Add</button>
+           <button class="btn ghost add-done">Done</button>
+         </div>`;
+      const nameI = addWrap.querySelector(".add-name");
+      const minsI = addWrap.querySelector(".add-mins");
+      const commit = () => {
+        const name = nameI.value.trim();
+        if (!name){ nameI.focus(); return; }
+        let mins = parseInt(minsI.value, 10);
+        if (isNaN(mins) || mins < 0) mins = 0;
+        if (mins > 600) mins = 600;
+        const id = "c:" + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+        state.custom.push({ id, room: r, freq: activeFreq, name, mins });
+        save();
+        renderAll(); // stays open (addingRoom unchanged), input comes back empty & focused
+      };
+      addWrap.querySelector(".add-save").addEventListener("click", commit);
+      addWrap.querySelector(".add-done").addEventListener("click", () => { addingRoom = null; renderAll(); });
+      nameI.addEventListener("keydown", e => {
+        if (e.key === "Enter"){ e.preventDefault(); commit(); }
+        if (e.key === "Escape"){ addingRoom = null; renderAll(); }
+      });
+    } else {
+      const b = document.createElement("button");
+      b.className = "add-btn";
+      b.textContent = "+ Add a task to " + ROOMS[r].name;
+      b.addEventListener("click", () => { addingRoom = r; renderAll(); });
+      addWrap.appendChild(b);
+    }
+    group.appendChild(addWrap);
+
+    elBoard.appendChild(group);
+  }
+}
+
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]));
+}
+
+function toggleTask(id, li){
+  const nowDone = !state.done[id];
+  if (nowDone){ state.done[id] = true; li.classList.add("done"); }
+  else { delete state.done[id]; li.classList.remove("done"); }
+  li.setAttribute("aria-pressed", nowDone);
+  save();
+  buildFreqTabs();
+  updateRoomCounts();
+  updateHero();
+  if (nowDone) maybeCelebrate();
+}
+
+function deleteCustom(id){
+  state.custom = state.custom.filter(c => c.id !== id);
+  delete state.done[id];
+  save();
+  renderAll();
+}
+
+function updateRoomCounts(){
+  const heads = elBoard.querySelectorAll(".room-group");
+  const rooms = activeRoom === "all" ? roomsInFreq() : [activeRoom];
+  heads.forEach((g, i) => {
+    const r = rooms[i];
+    if (!r) return;
+    const items = allTasks().filter(t => t.freq === activeFreq && t.room === r);
+    const done = items.filter(t => state.done[t.id]).length;
+    const chip = g.querySelector(".count");
+    const allDone = items.length > 0 && done === items.length;
+    chip.textContent = items.length ? (allDone ? "✓ all done" : done + " / " + items.length) : "nothing here yet";
+    chip.classList.toggle("complete", allDone);
+  });
+}
+
+const ring = document.getElementById("ring");
+const CIRC = 2 * Math.PI * 50;
+function updateHero(){
+  const vis = visibleTasks();
+  const total = vis.length;
+  const done = vis.filter(t => state.done[t.id]).length;
+  const left = total - done;
+  const pct = total ? Math.round((done/total)*100) : 0;
+  const minsLeft = vis.filter(t => !state.done[t.id]).reduce((s,t)=>s+t.mins,0);
+
+  ring.style.strokeDashoffset = CIRC * (1 - pct/100);
+  ring.style.stroke = pct === 100 ? "var(--honey)" : "var(--green)";
+  document.getElementById("ringPct").textContent = pct + "%";
+
+  const f = FREQS.find(x => x.id === activeFreq);
+  const roomLabel = activeRoom === "all" ? "" : " · " + ROOMS[activeRoom].name;
+  document.getElementById("heroLine").textContent = f.label + roomLabel;
+  document.getElementById("heroSub").textContent = f.desc;
+  document.getElementById("statLeft").textContent = left;
+  document.getElementById("statTime").textContent = fmtTime(minsLeft);
+  document.getElementById("statDone").textContent = done;
+  elFreqDesc.textContent = "";
+}
+
+function fmtTime(m){
+  if (m <= 0) return "0m";
+  if (m < 60) return m + "m";
+  const h = Math.floor(m/60), r = m % 60;
+  return r ? `${h}h ${r}m` : `${h}h`;
+}
+
+function maybeCelebrate(){
+  const vis = visibleTasks();
+  const allDone = vis.length && vis.every(t => state.done[t.id]);
+  document.getElementById("celebrate").classList.toggle("hidden", !allDone);
+  if (allDone) burst();
+}
+
+document.getElementById("pickOne").addEventListener("click", () => {
+  const undone = visibleTasks().filter(t => !state.done[t.id]);
+  if (!undone.length){ burst(); return; }
+  const sorted = [...undone].sort((a,b)=>a.mins-b.mins);
+  const pool = sorted.slice(0, Math.max(1, Math.ceil(sorted.length/3)));
+  const choice = pool[Math.floor(Math.random()*pool.length)];
+  addingRoom = null;
+  if (activeRoom !== "all" && activeRoom !== choice.room){ activeRoom = choice.room; renderAll(); }
+  const el = elBoard.querySelector(`.task[data-id="${CSS.escape(choice.id)}"]`);
+  if (el){
+    el.scrollIntoView({behavior:"smooth", block:"center"});
+    el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");
+    el.focus({preventScroll:true});
+  }
+});
+
+document.getElementById("resetList").addEventListener("click", () => {
+  const vis = visibleTasks();
+  const label = (activeRoom === "all" ? FREQS.find(f=>f.id===activeFreq).label + " list" : ROOMS[activeRoom].name);
+  if (!confirm(`Uncheck everything in the ${label}? This starts the cycle over.`)) return;
+  for (const t of vis) delete state.done[t.id];
+  if (activeFreq === "daily") state.lastDaily = new Date().toDateString();
+  addingRoom = null;
+  save();
+  renderAll();
+});
+
+function renderAll(){
+  buildFreqTabs();
+  buildRoomChips();
+  buildBoard();
+  updateHero();
+  maybeCelebrate();
+  if (addingRoom){
+    const inp = elBoard.querySelector(".add-form .add-name");
+    if (inp) inp.focus();
+  }
+}
+
+/* confetti */
+function burst(){
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const colors = ["#2f8f6b","#e09a35","#6a6fd6","#2aa3b8","#5aa84a"];
+  for (let i=0;i<26;i++){
+    const c = document.createElement("div");
+    c.className = "confetti";
+    c.style.left = Math.random()*100 + "vw";
+    c.style.background = colors[i % colors.length];
+    c.style.transform = `rotate(${Math.random()*360}deg)`;
+    document.body.appendChild(c);
+    const dur = 1100 + Math.random()*900;
+    c.animate(
+      [ { transform:`translateY(0) rotate(0)`, opacity:1 },
+        { transform:`translateY(${70+Math.random()*25}vh) rotate(${360+Math.random()*360}deg)`, opacity:0 } ],
+      { duration: dur, easing:"cubic-bezier(.3,.6,.4,1)" }
+    ).onfinish = () => c.remove();
+  }
+}
+
+renderAll();
+</script>
+</body>
+</html>
